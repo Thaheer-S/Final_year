@@ -128,8 +128,8 @@ def estimate_budget(team_members, duration):
     return total_salary + (cloud_cost_per_month * duration) + (software_licenses * len(team_members)) + misc_costs
 
 # 📌 **AI API Configuration**
-API_URL = "Add your API URL"
-API_KEY = "Add your API Key"  # Store in .env for security
+API_URL = "https://api.groq.com/openai/v1/chat/completions"
+API_KEY = "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"  # Store in .env for security
 
 @app.route("/generate-plan", methods=["POST"])
 def generate_plan():
