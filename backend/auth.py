@@ -71,30 +71,69 @@ def register():
 #     else:
 #         return jsonify({"success": False, "message": "Invalid credentials"}), 401
 
+# @auth_bp.route("/login", methods=["POST"])
+# def login():
+#     if not request.is_json:
+#         return jsonify({"error": "Request must be JSON"}), 415
+
+#     data = request.json
+#     email = data.get("email")
+#     password = data.get("password")
+
+#     conn = get_db_connection()
+#     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+#     conn.close()
+
+#     if user:
+#         stored_password = user["password"]
+#         print("User found:", user["email"])  # ✅ Debug: Check if user is found
+#         print("Stored Password Hash:", stored_password)  # ✅ Debug: Check stored hash
+#         print("Entered Password:", password)  # ✅ Debug: Check entered password
+
+#         if check_password_hash(stored_password, password):
+#             print("✅ Password Matched!")  # ✅ Debugging success
+#             return jsonify({"success": True, "user": {"id": user["id"], "email": user["email"]}})
+#         else:
+#             print("❌ Password does not match!")  # Debug failure reason
+#             return jsonify({"success": False, "message": "Invalid password"}), 401
+#     else:
+#         print("❌ User not found!")  # Debug failure reason
+#         return jsonify({"success": False, "message": "User not found"}), 404
+
+
 @auth_bp.route("/login", methods=["POST"])
 def login():
     if not request.is_json:
         return jsonify({"error": "Request must be JSON"}), 415
-
     data = request.json
     email = data.get("email")
+    username = data.get("email")
     password = data.get("password")
-
+    print(data)
     conn = get_db_connection()
     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-    conn.close()
-
     if user:
         stored_password = user["password"]
-        print("User found:", user["email"])  # ✅ Debug: Check if user is found
-        print("Stored Password Hash:", stored_password)  # ✅ Debug: Check stored hash
-        print("Entered Password:", password)  # ✅ Debug: Check entered password
-
+        
         if check_password_hash(stored_password, password):
             print("✅ Password Matched!")  # ✅ Debugging success
-            return jsonify({"success": True, "user": {"id": user["id"], "email": user["email"]}})
+            return jsonify({"success": True,"type": "manager", "user": {"id": user["id"], "email": user["email"]}})
         else:
             print("❌ Password does not match!")  # Debug failure reason
+            return jsonify({"success": False, "message": "Invalid password"}), 401
+    employee = conn.execute("SELECT * FROM employees WHERE username = ?", (username,)).fetchone()
+    conn.close()
+
+    if employee:
+        stored_password = employee["password"]
+        print("✅ Employee found:", employee["username"])
+        print("Password:", stored_password)
+
+        if password == stored_password:
+            print("🔑 Password Matched!")
+            return jsonify({"success": True, "type": "employee", "user": {"id": employee["id"], "username": employee["username"]}})
+        else:
+            print("❌ Password does not match!")
             return jsonify({"success": False, "message": "Invalid password"}), 401
     else:
         print("❌ User not found!")  # Debug failure reason
